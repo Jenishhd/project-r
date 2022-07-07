@@ -40,3 +40,7 @@ code {
 .navbar a:hover {
   color: #0fa6ba;
 }
+
+.code {
+  margin: auto;
+}
