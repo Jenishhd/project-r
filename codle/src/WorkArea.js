@@ -8,7 +8,7 @@ import { useState } from "react"
 const WorkArea = () => {
 
     const [active, setActive] = useState(0);
-    const {question, isLoading, error} = FetchQuestion('url to api');
+    const {question, isLoading, error} = FetchQuestion('https://project-r-70a76-default-rtdb.firebaseio.com/questions/7-7-22.json');
 
     const showQuestion = () => {
         setActive(0);
@@ -32,16 +32,18 @@ const WorkArea = () => {
             {/* <div className="changingInfo"> */}
             { error && <div>{error}</div> }
             { isLoading && <Loading/> }
-            { active === 0 && !error && !isLoading && <Question data={question}/> }
+            {/* { active === 0 && !error && !isLoading && <Question data={question}/> }
             { active === 1 && !error && !isLoading && <Code/> }
-            { active === 2 && !error && !isLoading && <Output/> }
+            { active === 2 && !error && !isLoading && <Output/> } */}
             {/* </div> */}
-            <div className="buttons">
-                <button onClick={showQuestion}>Question</button>
+            {/* <div className="buttons"> */}
+                {/* <button onClick={showQuestion}>Question</button>
                 <button onClick={showCode}>Code</button>
                 <button onClick={showOutput}>Output</button>
-                <button onClick={runCode}>Run Code</button>
-            </div>
+                <button onClick={runCode}>Run Code</button> */}
+            {/* </div> */}
+            { !error && !isLoading && <Question data={question}/> }
+            { !error && !isLoading && <Code/> }
         </div>
      );
 }
