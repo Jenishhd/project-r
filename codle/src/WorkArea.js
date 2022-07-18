@@ -1,30 +1,29 @@
 import Code from "./Code"
 import Loading from "./Loading"
-import Output from "./Output"
 import Question from "./Question"
 import FetchQuestion from "./FetchQuestion"
-import { useState } from "react"
+import ResizePanel from "react-resize-panel";
 
 const WorkArea = () => {
 
-    const [active, setActive] = useState(0);
-    const {question, isLoading, error} = FetchQuestion('https://project-r-70a76-default-rtdb.firebaseio.com/questions/7-7-22.json');
+    // const [active, setActive] = useState(0);
+    const {question, isLoading, error} = FetchQuestion('https://project-r-70a76-default-rtdb.firebaseio.com/questions/7-8-22.json');
 
-    const showQuestion = () => {
-        setActive(0);
-    }
+    // const showQuestion = () => {
+    //     setActive(0);
+    // }
 
-    const showCode = () => {
-        setActive(1);
-    }
+    // const showCode = () => {
+    //     setActive(1);
+    // }
 
-    const showOutput = () => {
-        setActive(2);
-    }
+    // const showOutput = () => {
+    //     setActive(2);
+    // }
 
-    const runCode = () => {
-        setActive(2);
-    }
+    // const runCode = () => {
+    //     setActive(2);
+    // }
     
 
     return ( 
@@ -42,8 +41,13 @@ const WorkArea = () => {
                 <button onClick={showOutput}>Output</button>
                 <button onClick={runCode}>Run Code</button> */}
             {/* </div> */}
-            { !error && !isLoading && <Question data={question}/> }
-            { !error && !isLoading && <Code/> }
+            <div className="column">
+                {!error && !isLoading && 
+            <ResizePanel direction="e">
+                 <Question data={question} className="left"/> 
+            </ResizePanel> }
+                { !error && !isLoading && <Code className="right"/> }
+            </div>
         </div>
      );
 }

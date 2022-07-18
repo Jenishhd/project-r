@@ -6,8 +6,6 @@ const FetchQuestion = (url) => {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        // setQuestion("here is the question & here is the " + url);
-        // setIsLoading(false);
         const abortCont = new AbortController();
 
         fetch(url, {signal: abortCont.signal})
