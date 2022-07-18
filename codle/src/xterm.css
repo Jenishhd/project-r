@@ -101,6 +101,10 @@
     top: 0;
     bottom: 0;
   }
+
+  .xterm-viewport {
+    border-radius: 20px;
+  }
   
   .xterm .xterm-screen {
     position: relative;
@@ -170,3 +174,6 @@
     text-decoration: underline;
   }
   
+  .xterm-text-layer {
+    border-radius: 20px;
+  }
