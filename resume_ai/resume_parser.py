@@ -1,67 +1,69 @@
 import pdfplumber
 import re
 import spacy
+import fitz
+from langchain.document_loaders import PyMuPDFLoader
+from langchain.llms import OpenAI
+import os
 
-nlp = spacy.load("en_core_web_sm")
 
-def extract_text_from_pdf(pdf_path):
-    with pdfplumber.open(pdf_path) as pdf:
-        text = ''
-        for page in pdf.pages:
-            text += page.extract_text()
-    return text
+os.environ["OPENAI_API_KEY"] = "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"
 
-def extract_email(text):
-    email = re.findall(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', text)
-    return email[0] if email else None
+def extract_hyperlinks_from_pdf(path):
+    # Create a document object
+    doc = fitz.open('/Users/jenishthanki/Downloads/Jenish_Thanki_Resume_Updated.pdf')  # or fitz.Document(filename)
+    links = []
+    # Extract the number of pages (int)
+    #print(doc.page_count)
 
-def extract_phone_number(text):
-    phone = re.findall(r'\+?[\d\-\(\)\s]{7,15}', text)
-    return phone[0] if phone else None
+    # the metadata (dict) e.g., the author,...
+    #print(doc.metadata)
 
-def extract_skills(text):
-    skills = nlp(text)
-    skills_list = [token.text for token in skills if token.pos_ == "NOUN"]
-    return skills_list
+    # Get the page by their index
+    page = doc.load_page(0)
+    # or page = doc[0]
 
-def extract_name(text):
-    nlp_text = nlp(text)
-    name = None
-    for entity in nlp_text.ents:
-        if entity.label_ == 'PERSON':
-            name = entity.text
-            break
-    return name
+    # read a Page
 
-def extract_hyperlinks_from_pdf(text):
-    pdf_links = []
+    # Render and save the page as an image
+    pix = page.get_pixmap() 
+    pix.save(f"page-{page.number}.png")
 
-    if text:
-        # Regular expression to match URLs
-        url_pattern = re.compile(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
-        urls = re.findall(url_pattern, text)
 
-        if urls:
-            pdf_links.extend(urls)
-
-    # Extracting links from annotations
-    return pdf_links
-
-def extract_information_from_resume(pdf_path):
-    text = extract_text_from_pdf(pdf_path)
-    email = extract_email(text)
-    phone_number = extract_phone_number(text)
-    skills = extract_skills(text)
-    name = extract_name(text)
-    links = extract_hyperlinks_from_pdf(text)
+    # get the links on all pages
+    for i in range(doc.page_count):
+        page = doc.load_page(i)
+        link = page.get_links()
+        links = [d['uri'] for d in link if 'uri' in d]
+    return links
     
-    return {
-        'Name': name,
-        'Email': email,
-        'Phone number': phone_number,
-        'Skills': skills,
-        'Links' : links
-    }
+def pdf_loader(path):
+    loader = PyMuPDFLoader(path)
+    data = loader.load()
+    return data
+
+
+
+def get_resume_json_prompt(resume_data):
+    prompt = """
+                    Take this parsed input for a resume as an input """ + resume_data + """\n
+                Based on this resume return a json dictionary with the fields of personal information, soft skills, technical skills, years of experience, past companies worked for, hyperlinks, projects, education, and a career narrative. 
+                {
+                personal_info: [],
+                soft_skills:[],
+                technical_skills:[],
+                yrs_of_exp: ,
+                companies_worked_at: [],
+                hyperlinks: [],
+                projects: [],
+                education: [],
+                narrative:,
+                url/links: 
+                } 
+            """
+    return prompt
+
+
 
 if __name__ == "__main__":
     import sys
@@ -69,6 +71,8 @@ if __name__ == "__main__":
         print("Usage: python pdf_parser.py <path_to_resume.pdf>")
         sys.exit(1)
     pdf_path = sys.argv[1]
-    resume_information = extract_information_from_resume(pdf_path)
-    print(resume_information)
+    result = get_resume_json_prompt(str(pdf_loader(pdf_path)))
+    llm = OpenAI(model_name="text-davinci-003", n=2, best_of=2)
+    output = llm(result)
+    print(output)
 
