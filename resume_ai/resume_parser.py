@@ -7,8 +7,6 @@ from langchain.llms import OpenAI
 import os
 
 
-os.environ["OPENAI_API_KEY"] = "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"
-
 def extract_hyperlinks_from_pdf(path):
     # Create a document object
     doc = fitz.open('/Users/jenishthanki/Downloads/Jenish_Thanki_Resume_Updated.pdf')  # or fitz.Document(filename)
@@ -47,13 +45,13 @@ def pdf_loader(path):
 def get_resume_json_prompt(resume_data):
     prompt = """
                     Take this parsed input for a resume as an input """ + resume_data + """\n
-                Based on this resume return a json dictionary with the fields of personal information, soft skills, technical skills, years of experience, past companies worked for, hyperlinks, projects, education, and a career narrative. 
+                Based on this resume return a json dictionary with the fields of personal information, soft skills, technical skills, years of experience, past companies or organizations worked for, hyperlinks, projects, education, and a career narrative. 
                 {
                 personal_info: [],
                 soft_skills:[],
                 technical_skills:[],
                 yrs_of_exp: ,
-                companies_worked_at: [],
+                companies_worked_at/organizations : [],
                 hyperlinks: [],
                 projects: [],
                 education: [],
@@ -62,6 +60,8 @@ def get_resume_json_prompt(resume_data):
                 } 
             """
     return prompt
+
+#def parse_git_code(username):
 
 
 
@@ -73,6 +73,6 @@ if __name__ == "__main__":
     pdf_path = sys.argv[1]
     result = get_resume_json_prompt(str(pdf_loader(pdf_path)))
     llm = OpenAI(model_name="text-davinci-003", n=2, best_of=2)
-    output = llm(result)
+    output = llm.get_num_tokens(result)
     print(output)
 
